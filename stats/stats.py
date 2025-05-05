@@ -20,8 +20,8 @@ def make_hist(df, col):
     return plt
 
 
-hist = make_hist(df, col)
-hist.savefig("hist.png")
+# hist = make_hist(df, col)
+# hist.savefig("hist.png")
 
 def make_bar(df, col):
     #TODO: set head()
@@ -37,5 +37,24 @@ def make_bar(df, col):
     return plt
 
 
-bar = make_bar(df, col)
-bar.savefig("bar.png")
+# bar = make_bar(df, col)
+# bar.savefig("bar.png")
+
+'''
+Parameters:
+    - df: pandas dataframe
+    - col: dataframe column name
+    - plot_type: type of plot supported: bar, hist
+'''
+def make_plot(df, col, plot_type):
+    if plot_type == "hist":
+        hist = make_hist(df, col)
+        hist.savefig("hist.png")
+    elif plot_type == "bar":
+        bar = make_bar(df, col)
+        bar.savefig("bar.png")
+    else:
+        print("Plot type not supported!")
+
+
+make_plot(df, col, plot_type)
