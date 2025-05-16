@@ -36,11 +36,11 @@ def make_plot(df, col, plot_type):
     elif plot_type == "bar":
         make_bar(df, col)
     else:
-        print("❌ 不支持的图表类型")
+        print("不支持的图表类型")
 
 
 def main():
-    st.title("📊 表格数据可视化工具")
+    st.title("表格数据可视化工具")
 
     uploaded_file = st.file_uploader("请上传 CSV 文件", type=["csv"])
     if uploaded_file is not None:
