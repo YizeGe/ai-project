@@ -45,7 +45,7 @@ def update_dropdowns(file):
 
 # Gradio 界面
 with gr.Blocks() as demo:
-    gr.Markdown("## 📊 表格数据可视化工具（Gradio版）")
+    gr.Markdown("表格数据可视化工具")
 
     file_input = gr.File(label="上传CSV", file_types=[".csv"])
     output_dataframe = gr.DataFrame()
