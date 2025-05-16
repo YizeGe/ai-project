@@ -1,19 +1,18 @@
+import gradio as gr
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
-import streamlit as st
+import seaborn as sns
 
-
-
+# 生成直方图
 def make_hist(df, col):
     plt.figure(figsize=(14, 6))
     sns.histplot(df[col].dropna(), bins=20, kde=True)
     plt.xticks(rotation=60)
     plt.title(f"Histogram of {col}")
     plt.tight_layout()
-    st.pyplot(plt)
+    return plt
 
-
+# 生成条形图
 def make_bar(df, col):
     results = df[col].value_counts()
     plt.figure(figsize=(14, 6))
@@ -21,39 +20,41 @@ def make_bar(df, col):
     plt.xticks(rotation=60)
     plt.title(f"Barplot of {col}")
     plt.tight_layout()
-    st.pyplot(plt)
+    return plt
 
+# 根据上传的文件生成图表
+def make_plot(file, col, plot_type):
+    if file is None:
+        return None
+    df = pd.read_csv(file.name)
 
-'''
-Parameters:
-    - df: pandas dataframe
-    - col: dataframe column name
-    - plot_type: type of plot supported: bar, hist
-'''
-def make_plot(df, col, plot_type):
     if plot_type == "hist":
-        make_hist(df, col)
+        return make_hist(df, col)
     elif plot_type == "bar":
-        make_bar(df, col)
+        return make_bar(df, col)
     else:
-        print("❌ 不支持的图表类型")
+        return None
 
+# 获取列名并显示前几行数据
+def update_dropdowns(file):
+    if file is None:
+        return gr.update(choices=[]), None
+    df = pd.read_csv(file.name)
+    column_choices = list(df.columns)
+    return gr.update(choices=column_choices, value=column_choices[0] if column_choices else None), df.head()
 
-def main():
-    st.title("📊 表格数据可视化工具")
+# Gradio 界面
+with gr.Blocks() as demo:
+    gr.Markdown("## 📊 表格数据可视化工具（Gradio版）")
 
-    uploaded_file = st.file_uploader("请上传 CSV 文件", type=["csv"])
-    if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)
-        st.dataframe(df.head())
-    #else:
-    #   df=pd.read_csv("cars_2010_2020.csv")需要本地拥有此文件
+    file_input = gr.File(label="上传CSV", file_types=[".csv"])
+    output_dataframe = gr.DataFrame()
+    column_dropdown = gr.Dropdown(label="选择列", choices=[], interactive=True)
+    plot_type = gr.Radio(["hist", "bar"], label="图表类型", value="hist")
+    plot_button = gr.Button("生成图表")
+    output_plot = gr.Plot()
 
-        columns = df.columns.tolist()
-        selected_col = st.selectbox("请选择要可视化的列", columns)
-        plot_type = st.selectbox("请选择图表类型", ["hist", "bar"])
-        make_plot(df, selected_col, plot_type)
+    file_input.change(fn=update_dropdowns, inputs=file_input, outputs=[column_dropdown, output_dataframe])
+    plot_button.click(fn=make_plot, inputs=[file_input, column_dropdown, plot_type], outputs=output_plot)
 
-
-if __name__ == "__main__":
-    main()
+demo.launch()
